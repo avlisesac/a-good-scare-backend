@@ -8,6 +8,13 @@
       "when": 1765074288006,
       "tag": "0000_rare_rawhide_kid",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1765143536083,
+      "tag": "0001_bizarre_sersi",
+      "breakpoints": true
     }
   ]
 }
