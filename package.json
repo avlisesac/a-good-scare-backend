@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build:schema": "npx tsc src/db/schema.ts --outDir src/db",
+    "build:schema": "npx tsc --skipLibCheck true src/db/schema.ts --outDir src/db",
     "start": "yarn build:schema && node ./bin/www"
   },
   "dependencies": {
