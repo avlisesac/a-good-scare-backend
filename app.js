@@ -11,6 +11,7 @@ var usersRouter = require("./routes/users");
 const db = require("./db");
 const { usersTable } = require("./src/db/schema");
 const { eq } = require("drizzle-orm");
+const auth = require("./routes/auth");
 
 var app = express();
 
@@ -132,6 +133,14 @@ app.post("/api/login", async (req, res) => {
       error,
     });
   }
+});
+
+app.get("/api/free-endpoint", (req, res) => {
+  res.json({ message: "this data is avail to all!" });
+});
+
+app.get("/api/auth-endpoint", auth, (req, res) => {
+  res.json({ message: "this data is limited to authorized users." });
 });
 
 module.exports = app;

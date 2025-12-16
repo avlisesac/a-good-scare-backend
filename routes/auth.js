@@ -1,13 +1,18 @@
-const { Router } = require("express");
-const { body } = require('express-validator');
-const { register } = require("../controllers/auth");
-const router = Router();
+const jwt = require("jsonwebtoken");
 
-const validateRegister = [
-    body('email').isEmail().notEmpty().withMessage('Email is a required field.').trim().escape(),
-    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long.').trim().escape(),
-];
+const auth = async (req, res, next) => {
+  try {
+    const token = await req.headers.authorization.split(" ")[1];
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const user = decodedToken;
+    console.log("user:", user);
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({
+      error: new Error("Invalid request."),
+    });
+  }
+};
 
-router.post('/register', validateRegister, register);
-
-module.exports = router;
+module.exports = auth;
