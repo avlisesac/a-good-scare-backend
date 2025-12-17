@@ -141,8 +141,8 @@ app.post("/api/login", async (req, res) => {
   } catch (error) {
     console.error("error:", error);
     res.status(400).send({
-      message: ("Login failed", error),
-      error,
+      error: error,
+      message: error,
     });
   }
 });
