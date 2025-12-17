@@ -9,8 +9,10 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({
-      error: new Error("Invalid request."),
+    return res.status(401).json({
+      code: "INVALID_TOKEN",
+      error: error,
+      message: "You are not authorized to use this endpoint",
     });
   }
 };
