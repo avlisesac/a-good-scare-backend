@@ -135,7 +135,10 @@ app.post("/api/login", async (req, res) => {
 
     res.status(200).send({
       message: "Login Successful",
-      email: targetUser.email,
+      user: {
+        id: targetUser.id,
+        email: targetUser.email,
+      },
       token,
     });
   } catch (error) {
