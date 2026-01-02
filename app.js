@@ -9,8 +9,9 @@ const cors = require("cors");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+var ratingRouter = require("./routes/rating");
 const db = require("./db");
-const { usersTable } = require("./src/db/schema");
+const { users } = require("./src/db/schema");
 const { eq } = require("drizzle-orm");
 const auth = require("./routes/auth");
 
@@ -35,6 +36,7 @@ app.use(
 
 app.use("/api", indexRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/rate", ratingRouter);
 
 // TODO: Move to route file
 app.post("/api/register", async (req, res, next) => {
@@ -58,8 +60,8 @@ app.post("/api/register", async (req, res, next) => {
     // Check for existing user w/ email.
     const existingUsersWithEmail = await db
       .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, email));
+      .from(users)
+      .where(eq(users.email, email));
     console.log("existingUsersWithEmail:", existingUsersWithEmail);
 
     if (existingUsersWithEmail && existingUsersWithEmail.length > 0) {
@@ -73,7 +75,7 @@ app.post("/api/register", async (req, res, next) => {
       password: hashedPassword,
     };
     console.log("insertValues:", insertValues);
-    const newUser = await db.insert(usersTable).values(insertValues);
+    const newUser = await db.insert(users).values(insertValues);
 
     res.status(201).send({
       message: "user created successfully",
@@ -87,6 +89,8 @@ app.post("/api/register", async (req, res, next) => {
     });
   }
 });
+
+app.post("/api/rate");
 
 app.post("/api/login", async (req, res) => {
   console.log("req.body:", req.body);
@@ -109,8 +113,8 @@ app.post("/api/login", async (req, res) => {
     // Check for existing user w/ email.
     const existingUsersWithEmail = await db
       .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, email));
+      .from(users)
+      .where(eq(users.email, email));
     console.log("existingUsersWithEmail:", existingUsersWithEmail);
 
     if (!existingUsersWithEmail || existingUsersWithEmail.length < 1) {
@@ -126,8 +130,10 @@ app.post("/api/login", async (req, res) => {
 
     const token = jwt.sign(
       {
-        userId: targetUser.id,
-        userEmail: targetUser.email,
+        user: {
+          id: targetUser.id,
+          email: targetUser.email,
+        },
       },
       process.env.JWT_SECRET_KEY,
       { expiresIn: process.env.JWT_EXPIRATION_TIME }
@@ -156,6 +162,11 @@ app.get("/api/free-endpoint", (req, res) => {
 
 app.get("/api/auth-endpoint", auth, (req, res) => {
   res.json({ message: "this data is limited to authorized users." });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).send(err.message || "an error occured.");
 });
 
 module.exports = app;
