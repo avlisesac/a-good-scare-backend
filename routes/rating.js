@@ -4,8 +4,35 @@ var express = require("express");
 var db = require("../db");
 var router = express.Router();
 var { moviesToUsers } = require("../src/db/schema");
-const { sql } = require("drizzle-orm");
+const { eq, and } = require("drizzle-orm");
 const { movies } = require("../src/db/schema");
+
+router.get("/:movieId/:userId", async (req, res, next) => {
+  try {
+    const { movieId, userId } = req.params;
+    if (!userId) {
+      throw new Error("no user id available to proceed.");
+    }
+    if (!movieId) {
+      throw new Error("no movie id provided.");
+    }
+
+    const existingMovieToUser = await db
+      .select()
+      .from(moviesToUsers)
+      .where(
+        and(
+          eq(moviesToUsers.movieId, movieId),
+          eq(moviesToUsers.userId, userId)
+        )
+      );
+    console.log("existingMovieToUser:", existingMovieToUser);
+    const singleItem = existingMovieToUser?.[0];
+    res.json(singleItem);
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.post("/:movieId", auth, async (req, res, next) => {
   try {
@@ -54,9 +81,11 @@ router.post("/:movieId", auth, async (req, res, next) => {
       })
       .returning();
 
-    console.log("the new or updated entry is:", upsertedEntry);
+    const singleItem = upsertedEntry?.[0];
 
-    res.json(upsertedEntry);
+    console.log("the new or updated entry is:", singleItem);
+
+    res.json(singleItem);
   } catch (err) {
     next(err);
   }
