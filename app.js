@@ -10,10 +10,10 @@ const cors = require("cors");
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var ratingRouter = require("./routes/rating");
+var authModule = require("./routes/auth");
 const db = require("./db");
 const { users } = require("./src/db/schema");
 const { eq } = require("drizzle-orm");
-const auth = require("./routes/auth");
 
 var app = express();
 
@@ -37,6 +37,7 @@ app.use(
 app.use("/api", indexRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/rate", ratingRouter);
+app.use("/api/auth", authModule.router);
 
 // TODO: Move to route file
 app.post("/api/register", async (req, res, next) => {
@@ -90,77 +91,11 @@ app.post("/api/register", async (req, res, next) => {
   }
 });
 
-app.post("/api/rate");
-
-app.post("/api/login", async (req, res) => {
-  console.log("req.body:", req.body);
-  try {
-    const { email, password } = req.body;
-    let missingRequiredParametersMessage = "Missing required parameters: ";
-    const missingRequiredParameters = [];
-    if (!email) {
-      missingRequiredParameters.push("email");
-    }
-    if (!password) {
-      missingRequiredParameters.push("password");
-    }
-    if (missingRequiredParameters.length > 0) {
-      console.log("missingRequiredParameters:", missingRequiredParameters);
-      missingRequiredParametersMessage += missingRequiredParameters.join(", ");
-      throw missingRequiredParametersMessage;
-    }
-
-    // Check for existing user w/ email.
-    const existingUsersWithEmail = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email));
-    console.log("existingUsersWithEmail:", existingUsersWithEmail);
-
-    if (!existingUsersWithEmail || existingUsersWithEmail.length < 1) {
-      throw "No user found with this email address.";
-    }
-    const targetUser = existingUsersWithEmail[0];
-
-    const passwordsMatch = await bcrypt.compare(password, targetUser.password);
-
-    if (!passwordsMatch) {
-      throw "Password is incorrect.";
-    }
-
-    const token = jwt.sign(
-      {
-        user: {
-          id: targetUser.id,
-          email: targetUser.email,
-        },
-      },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: process.env.JWT_EXPIRATION_TIME }
-    );
-
-    res.status(200).send({
-      message: "Login Successful",
-      user: {
-        id: targetUser.id,
-        email: targetUser.email,
-      },
-      token,
-    });
-  } catch (error) {
-    console.error("error:", error);
-    res.status(400).send({
-      error: error,
-      message: error,
-    });
-  }
-});
-
 app.get("/api/free-endpoint", (req, res) => {
   res.json({ message: "this data is avail to all!" });
 });
 
-app.get("/api/auth-endpoint", auth, (req, res) => {
+app.get("/api/auth-endpoint", authModule.auth, (req, res) => {
   res.json({ message: "this data is limited to authorized users." });
 });
 

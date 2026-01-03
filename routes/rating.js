@@ -1,4 +1,4 @@
-const auth = require("./auth");
+const authModule = require("./auth");
 
 var express = require("express");
 var db = require("../db");
@@ -34,7 +34,7 @@ router.get("/:movieId/:userId", async (req, res, next) => {
   }
 });
 
-router.post("/:movieId", auth, async (req, res, next) => {
+router.post("/:movieId", authModule.auth, async (req, res, next) => {
   try {
     // Get user id from jwt in request
     const user = req.user;
