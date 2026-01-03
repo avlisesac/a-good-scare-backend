@@ -10,11 +10,15 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 
-const defaultTableProperties = {
-  id: uuid().primaryKey().defaultRandom().notNull().unique(),
+const datetimeTableProperties = {
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().notNull(),
   deletedAt: timestamp(),
+};
+
+const defaultTableProperties = {
+  id: uuid().primaryKey().defaultRandom().notNull().unique(),
+  ...datetimeTableProperties,
 };
 
 export const users = pgTable("users", {
@@ -36,6 +40,7 @@ export const ratingEnum = pgEnum("rating", ["pos", "neg"]);
 export const moviesToUsers = pgTable(
   "movies_to_users",
   {
+    ...datetimeTableProperties,
     movieId: integer("movie_id").references(() => movies.id),
     userId: uuid("user_id").references(() => users.id),
     wantToWatch: boolean(),
