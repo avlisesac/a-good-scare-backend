@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1765074288006,
-      "tag": "0000_rare_rawhide_kid",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1765143536083,
-      "tag": "0001_bizarre_sersi",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1767131729520,
-      "tag": "0002_typical_professor_monster",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1767325862360,
-      "tag": "0003_motionless_doomsday",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1767363196669,
-      "tag": "0004_productive_thor",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1767366496032,
-      "tag": "0005_misty_expediter",
+      "when": 1767734725703,
+      "tag": "0000_cool_clea",
       "breakpoints": true
     }
   ]

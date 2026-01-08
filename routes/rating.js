@@ -3,7 +3,7 @@ const authModule = require("./auth");
 var express = require("express");
 var db = require("../db");
 var router = express.Router();
-var { moviesToUsers } = require("../src/db/schema");
+var { ratings } = require("../src/db/schema");
 const { eq, and } = require("drizzle-orm");
 const { movies } = require("../src/db/schema");
 
@@ -17,17 +17,12 @@ router.get("/:movieId/:userId", async (req, res, next) => {
       throw new Error("no movie id provided.");
     }
 
-    const existingMovieToUser = await db
+    const existingRating = await db
       .select()
-      .from(moviesToUsers)
-      .where(
-        and(
-          eq(moviesToUsers.movieId, movieId),
-          eq(moviesToUsers.userId, userId)
-        )
-      );
-    console.log("existingMovieToUser:", existingMovieToUser);
-    const singleItem = existingMovieToUser?.[0];
+      .from(ratings)
+      .where(and(eq(ratings.movieId, movieId), eq(ratings.userId, userId)));
+    console.log("existingRating:", existingRating);
+    const singleItem = existingRating?.[0];
     res.json(singleItem);
   } catch (err) {
     next(err);
@@ -66,14 +61,14 @@ router.post("/:movieId", authModule.auth, async (req, res, next) => {
     const newRating = rating ?? null;
 
     const upsertedEntry = await db
-      .insert(moviesToUsers)
+      .insert(ratings)
       .values({
         userId,
         movieId: Number(movieId),
         rating: newRating,
       })
       .onConflictDoUpdate({
-        target: [moviesToUsers.movieId, moviesToUsers.userId],
+        target: [ratings.movieId, ratings.userId],
         set: {
           rating: newRating,
           updatedAt: new Date(),
