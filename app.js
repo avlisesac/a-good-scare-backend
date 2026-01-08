@@ -36,7 +36,7 @@ app.use(
 
 app.use("/api", indexRouter);
 app.use("/api/users", usersRouter);
-app.use("/api/rate", ratingRouter);
+app.use("/api/rating", ratingRouter);
 app.use("/api/auth", authModule.router);
 
 // TODO: Move to route file
