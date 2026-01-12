@@ -4,7 +4,7 @@ var express = require("express");
 var db = require("../db");
 var router = express.Router();
 var { ratings } = require("../src/db/schema");
-const { eq, and } = require("drizzle-orm");
+const { eq, and, isNotNull } = require("drizzle-orm");
 const { movies } = require("../src/db/schema");
 
 router.get("/:movieId/:userId", async (req, res, next) => {
@@ -24,6 +24,43 @@ router.get("/:movieId/:userId", async (req, res, next) => {
     console.log("existingRating:", existingRating);
     const singleItem = existingRating?.[0];
     res.json(singleItem);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/:movieId", async (req, res, next) => {
+  try {
+    const { movieId } = req.params;
+    if (!movieId) {
+      throw new Error("no movie id provided.");
+    }
+    const allRatings = await db
+      .select()
+      .from(ratings)
+      .where(and(eq(ratings.movieId, movieId), isNotNull(ratings.rating)));
+    if (!allRatings || allRatings.length < 1) {
+      res.json({
+        average: `(No reviews yet)`,
+        icon: "unknown",
+      });
+    }
+    const ratingsCount = allRatings.length;
+    const countMessage = `(${ratingsCount} total reviews)`;
+    const posRatings = allRatings.filter((rating) => rating.rating === "pos");
+    console.log("posRatings:", posRatings);
+    const negRatings = allRatings.filter((rating) => rating.rating === "neg");
+    if (posRatings === 0) {
+      res.json({
+        average: `0% ${countMessage}`,
+        icon: "skip",
+      });
+    }
+    const averageRating = Math.round((posRatings.length / ratingsCount) * 100);
+    res.json({
+      average: `${averageRating}% ${countMessage}`,
+      icon: averageRating < 49 ? "skip" : "watch",
+    });
   } catch (err) {
     next(err);
   }
