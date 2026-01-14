@@ -11,6 +11,7 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var ratingRouter = require("./routes/rating");
 var authModule = require("./routes/auth");
+var watchlistRouter = require("./routes/watchlist");
 const db = require("./db");
 const { users } = require("./src/db/schema");
 const { eq } = require("drizzle-orm");
@@ -38,6 +39,7 @@ app.use("/api", indexRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/rating", ratingRouter);
 app.use("/api/auth", authModule.router);
+app.use("/api/watchlist", watchlistRouter);
 
 // TODO: Move to route file
 app.post("/api/register", async (req, res, next) => {
