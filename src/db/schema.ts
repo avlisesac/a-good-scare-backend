@@ -70,7 +70,7 @@ export const reviews = pgTable(
 );
 
 export const wantToWatch = pgTable(
-  "wantToWatch",
+  "want_to_watch",
   {
     ...defaultTableProperties,
     movieId: integer("movie_id").references(() => movies.id),
@@ -85,7 +85,7 @@ export const wantToWatch = pgTable(
 );
 
 export const flaggedAsNotHorror = pgTable(
-  "flaggedAsNotHorror",
+  "flagged_as_not_horror",
   {
     ...defaultTableProperties,
     movieId: integer("movie_id").references(() => movies.id),
@@ -99,7 +99,7 @@ export const flaggedAsNotHorror = pgTable(
 );
 
 export const seenMovies = pgTable(
-  "seenMovies",
+  "seen_movies",
   {
     ...defaultTableProperties,
     movieId: integer("movie_id").references(() => movies.id),

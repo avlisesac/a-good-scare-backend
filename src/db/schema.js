@@ -32,17 +32,17 @@ exports.reviews = (0, pg_core_1.pgTable)("reviews", __assign(__assign({}, defaul
     (0, pg_core_1.index)("review_user_idx").on(table.userId),
     (0, pg_core_1.uniqueIndex)("review_movie_user_idx").on(table.movieId, table.userId),
 ]; });
-exports.wantToWatch = (0, pg_core_1.pgTable)("wantToWatch", __assign(__assign({}, defaultTableProperties), { movieId: (0, pg_core_1.integer)("movie_id").references(function () { return exports.movies.id; }), userId: (0, pg_core_1.uuid)("user_id").references(function () { return exports.users.id; }), toWatch: (0, pg_core_1.boolean)() }), function (table) { return [
+exports.wantToWatch = (0, pg_core_1.pgTable)("want_to_watch", __assign(__assign({}, defaultTableProperties), { movieId: (0, pg_core_1.integer)("movie_id").references(function () { return exports.movies.id; }), userId: (0, pg_core_1.uuid)("user_id").references(function () { return exports.users.id; }), toWatch: (0, pg_core_1.boolean)() }), function (table) { return [
     (0, pg_core_1.index)("wtw_movie_idx").on(table.movieId),
     (0, pg_core_1.index)("wtw_user_idx").on(table.userId),
     (0, pg_core_1.uniqueIndex)("wtw_movie_user_idx").on(table.movieId, table.userId),
 ]; });
-exports.flaggedAsNotHorror = (0, pg_core_1.pgTable)("flaggedAsNotHorror", __assign(__assign({}, defaultTableProperties), { movieId: (0, pg_core_1.integer)("movie_id").references(function () { return exports.movies.id; }), userId: (0, pg_core_1.uuid)("user_id").references(function () { return exports.users.id; }) }), function (table) { return [
+exports.flaggedAsNotHorror = (0, pg_core_1.pgTable)("flagged_as_not_horror", __assign(__assign({}, defaultTableProperties), { movieId: (0, pg_core_1.integer)("movie_id").references(function () { return exports.movies.id; }), userId: (0, pg_core_1.uuid)("user_id").references(function () { return exports.users.id; }) }), function (table) { return [
     (0, pg_core_1.index)("nhflag_movie_idx").on(table.movieId),
     (0, pg_core_1.index)("nhflag_user_idx").on(table.userId),
     (0, pg_core_1.uniqueIndex)("nhflag_movie_user_idx").on(table.movieId, table.userId),
 ]; });
-exports.seenMovies = (0, pg_core_1.pgTable)("seenMovies", __assign(__assign({}, defaultTableProperties), { movieId: (0, pg_core_1.integer)("movie_id").references(function () { return exports.movies.id; }), userId: (0, pg_core_1.uuid)("user_id").references(function () { return exports.users.id; }) }), function (table) { return [
+exports.seenMovies = (0, pg_core_1.pgTable)("seen_movies", __assign(__assign({}, defaultTableProperties), { movieId: (0, pg_core_1.integer)("movie_id").references(function () { return exports.movies.id; }), userId: (0, pg_core_1.uuid)("user_id").references(function () { return exports.users.id; }) }), function (table) { return [
     (0, pg_core_1.index)("seen_movie_idx").on(table.movieId),
     (0, pg_core_1.index)("seen_user_idx").on(table.userId),
     (0, pg_core_1.uniqueIndex)("seen_movie_user_idx").on(table.movieId, table.userId),
