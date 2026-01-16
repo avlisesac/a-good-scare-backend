@@ -4,8 +4,30 @@ var express = require("express");
 var db = require("../db");
 var router = express.Router();
 var { wantToWatch } = require("../src/db/schema");
-const { eq, and, isNotNull } = require("drizzle-orm");
+const { eq, and, desc } = require("drizzle-orm");
 const { movies } = require("../src/db/schema");
+
+router.get("/", authModule.auth, async (req, res, next) => {
+  try {
+    // Get user id from jwt in request (added in auth module)
+    const user = req.user;
+    const { id: userId } = user;
+    if (!userId) {
+      throw new Error("no user id available to proceed.");
+    }
+    console.log("this user wants to receive their full watchlist:", user);
+
+    const fullWatchlist = await db
+      .select()
+      .from(wantToWatch)
+      .where(and(eq(wantToWatch.userId, userId), eq(wantToWatch.toWatch, true)))
+      .orderBy(desc(wantToWatch.updatedAt));
+
+    res.json(fullWatchlist);
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.post("/:movieId/:action", authModule.auth, async (req, res, next) => {
   try {
