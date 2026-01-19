@@ -35,6 +35,8 @@ app.use(
   })
 );
 
+app.set("trust proxy", 1);
+
 app.use("/api", indexRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/rating", ratingRouter);
