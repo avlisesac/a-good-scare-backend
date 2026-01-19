@@ -152,6 +152,7 @@ router.post("/login", async (req, res) => {
         user: {
           id: targetUser.id,
           email: targetUser.email,
+          username: targetUser.username,
         },
       },
       process.env.JWT_SECRET_KEY,
@@ -171,6 +172,7 @@ router.post("/login", async (req, res) => {
       user: {
         id: targetUser.id,
         email: targetUser.email,
+        username: targetUser.username,
       },
     });
   } catch (error) {
