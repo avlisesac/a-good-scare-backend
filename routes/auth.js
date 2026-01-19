@@ -8,6 +8,7 @@ var bcrypt = require("bcryptjs");
 
 const auth = async (req, res, next) => {
   try {
+    console.log("auth cookies:", req.cookies);
     const token = await req.cookies.auth_token;
     if (!token) {
       return res.status(401).json({ message: "Not authenticated." });
