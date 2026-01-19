@@ -25,6 +25,7 @@ const defaultTableProperties = {
 export const users = pgTable("users", {
   ...defaultTableProperties,
   email: varchar({ length: 255 }).notNull().unique(),
+  username: varchar({ length: 255 }).notNull().unique(),
   password: text().notNull(),
 });
 
