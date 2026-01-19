@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 var express = require("express");
 var db = require("../db");
 const { users } = require("../src/db/schema");
-const { eq } = require("drizzle-orm");
+const { eq, sql } = require("drizzle-orm");
 var router = express.Router();
 var bcrypt = require("bcryptjs");
 
@@ -32,14 +32,19 @@ router.get("/me", auth, (req, res, next) => {
   next();
 });
 
-router.post("/login", async (req, res) => {
+router.post("/register", async (req, res, next) => {
   console.log("req.body:", req.body);
+  let usernameExists = false;
+  let emailExists = false;
   try {
-    const { email, password } = req.body;
+    const { email, username, password } = req.body;
     let missingRequiredParametersMessage = "Missing required parameters: ";
     const missingRequiredParameters = [];
     if (!email) {
       missingRequiredParameters.push("email");
+    }
+    if (!username) {
+      missingRequiredParameters.push("username");
     }
     if (!password) {
       missingRequiredParameters.push("password");
@@ -54,13 +59,87 @@ router.post("/login", async (req, res) => {
     const existingUsersWithEmail = await db
       .select()
       .from(users)
-      .where(eq(users.email, email));
+      .where(sql`LOWER(${users.email}) = LOWER(${email})`);
     console.log("existingUsersWithEmail:", existingUsersWithEmail);
 
-    if (!existingUsersWithEmail || existingUsersWithEmail.length < 1) {
-      throw "No user found with this email address.";
+    if (existingUsersWithEmail && existingUsersWithEmail.length > 0) {
+      emailExists = true;
+      throw "User with this email already exists.";
     }
-    const targetUser = existingUsersWithEmail[0];
+
+    // Check for existing user w/ username.
+    const existingUsersWithUsername = await db
+      .select()
+      .from(users)
+      .where(sql`LOWER(${users.username}) = LOWER(${username})`);
+    console.log("existingUsersWithUsername:", existingUsersWithUsername);
+    if (existingUsersWithUsername && existingUsersWithUsername.length > 0) {
+      usernameExists = true;
+      throw "User with this username already exists.";
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    console.log("hashedPassword:", hashedPassword);
+    const insertValues = {
+      email: email,
+      username: username,
+      password: hashedPassword,
+    };
+    console.log("insertValues:", insertValues);
+    const newUser = await db.insert(users).values(insertValues);
+
+    res.status(201).send({
+      message: "user created successfully",
+      newUser,
+    });
+  } catch (error) {
+    console.error("error:", error);
+    res.status(500).send({
+      message: ("Error creating user:", error),
+      reason: emailExists
+        ? "emailExists"
+        : usernameExists
+        ? "usernameExists"
+        : null,
+      error,
+    });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  console.log("req.body:", req.body);
+  try {
+    const { idField, password } = req.body;
+    let missingRequiredParametersMessage = "Missing required parameters: ";
+    const missingRequiredParameters = [];
+    if (!idField) {
+      missingRequiredParameters.push("idField");
+    }
+    if (!password) {
+      missingRequiredParameters.push("password");
+    }
+    if (missingRequiredParameters.length > 0) {
+      console.log("missingRequiredParameters:", missingRequiredParameters);
+      missingRequiredParametersMessage += missingRequiredParameters.join(", ");
+      throw missingRequiredParametersMessage;
+    }
+
+    const usersFound = await db
+      .select()
+      .from(users)
+      .where(
+        sql`
+          LOWER(${users.email}) = LOWER(${idField})
+          OR LOWER(${users.username}) = LOWER(${idField})
+        `
+      )
+      .limit(1);
+
+    if (usersFound.length === 0) {
+      throw "No user found with this email address or username.";
+    }
+
+    const targetUser = usersFound[0];
 
     const passwordsMatch = await bcrypt.compare(password, targetUser.password);
 

@@ -19,7 +19,7 @@ var datetimeTableProperties = {
     deletedAt: (0, pg_core_1.timestamp)(),
 };
 var defaultTableProperties = __assign({ id: (0, pg_core_1.uuid)().primaryKey().defaultRandom().notNull() }, datetimeTableProperties);
-exports.users = (0, pg_core_1.pgTable)("users", __assign(__assign({}, defaultTableProperties), { email: (0, pg_core_1.varchar)({ length: 255 }).notNull().unique(), password: (0, pg_core_1.text)().notNull() }));
+exports.users = (0, pg_core_1.pgTable)("users", __assign(__assign({}, defaultTableProperties), { email: (0, pg_core_1.varchar)({ length: 255 }).notNull().unique(), username: (0, pg_core_1.varchar)({ length: 255 }).notNull().unique(), password: (0, pg_core_1.text)().notNull() }));
 exports.movies = (0, pg_core_1.pgTable)("movies", __assign(__assign({}, defaultTableProperties), { id: (0, pg_core_1.integer)().notNull().unique(), averageRating: (0, pg_core_1.integer)(), totalRatings: (0, pg_core_1.integer)(), totalReviews: (0, pg_core_1.integer)() }));
 exports.ratingEnum = (0, pg_core_1.pgEnum)("rating", ["pos", "neg"]);
 exports.ratings = (0, pg_core_1.pgTable)("ratings", __assign(__assign({}, defaultTableProperties), { movieId: (0, pg_core_1.integer)("movie_id").references(function () { return exports.movies.id; }), userId: (0, pg_core_1.uuid)("user_id").references(function () { return exports.users.id; }), rating: (0, exports.ratingEnum)() }), function (table) { return [
