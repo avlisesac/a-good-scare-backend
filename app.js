@@ -24,7 +24,7 @@ app.use(express.static(path.join(__dirname, "public")));
 const allowedOrigins = [
   "http://localhost:3000",
   "https://a-good-scare-frontend.onrender.com",
-  "https://agoodscare.com/",
+  "https://agoodscare.com",
 ];
 app.use(
   cors({
