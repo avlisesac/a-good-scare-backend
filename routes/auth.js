@@ -165,7 +165,7 @@ router.post("/login", async (req, res) => {
       // TODO: ensure this is set on live env.
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 24 * 30,
     });
 
     res.status(200).send({

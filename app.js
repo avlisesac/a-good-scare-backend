@@ -12,9 +12,6 @@ var usersRouter = require("./routes/users");
 var ratingRouter = require("./routes/rating");
 var authModule = require("./routes/auth");
 var watchlistRouter = require("./routes/watchlist");
-const db = require("./db");
-const { users } = require("./src/db/schema");
-const { eq } = require("drizzle-orm");
 
 var app = express();
 
