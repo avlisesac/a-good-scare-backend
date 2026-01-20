@@ -6,6 +6,8 @@ const { eq, sql } = require("drizzle-orm");
 var router = express.Router();
 var bcrypt = require("bcryptjs");
 
+const onProd = process.env.NODE_ENV === "production";
+
 const auth = async (req, res, next) => {
   try {
     console.log("auth cookies:", req.cookies);
@@ -163,8 +165,8 @@ router.post("/login", async (req, res) => {
     res.cookie("auth_token", token, {
       httpOnly: true,
       // TODO: ensure this is set on live env.
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
+      secure: onProd ? true : false,
+      sameSite: onProd ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
 
@@ -188,8 +190,8 @@ router.post("/login", async (req, res) => {
 router.post("/logout", (req, res) => {
   res.clearCookie("auth_token", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: onProd ? true : false,
+    sameSite: onProd ? "none" : "lax",
   });
   res.json({ message: "Logged out." });
 });
