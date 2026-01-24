@@ -4,34 +4,8 @@ var express = require("express");
 var db = require("../db");
 var router = express.Router();
 var { ratings, reviews, users } = require("../src/db/schema");
-const { eq, and, isNull, desc } = require("drizzle-orm");
+const { eq, and, isNull, desc, isNotNull } = require("drizzle-orm");
 const { movies } = require("../src/db/schema");
-
-// router.get("/:movieId/:userId", async (req, res, next) => {
-//   try {
-//     const { movieId, userId } = req.params;
-//     if (!userId) {
-//       throw new Error("no user id available to proceed.");
-//     }
-//     if (!movieId) {
-//       throw new Error("no movie id provided.");
-//     }
-
-//     const existingReview = await db
-//       .select()
-//       .from(reviews)
-//       .where(
-//         and(eq(reviews.movieId, movieId), eq(reviews.userId, userId)),
-//         isNull(reviews.deletedAt)
-//       )
-//       .limit(1);
-//     console.log("existingReview:", existingReview);
-//     const singleItem = existingReview?.[0];
-//     res.json(singleItem);
-//   } catch (err) {
-//     next(err);
-//   }
-// });
 
 router.get("/:movieId", async (req, res, next) => {
   try {
@@ -40,14 +14,25 @@ router.get("/:movieId", async (req, res, next) => {
       throw new Error("no movie id provided.");
     }
 
-    // TODO: Do not fetch reviews that have a deletedAt value
-    // TODO: Do not fetch reviews that do not have an associated rating that has a value.
     const allReviewsWithUser = await db
       .select()
       .from(reviews)
+      .innerJoin(
+        ratings,
+        and(
+          eq(ratings.userId, reviews.userId),
+          eq(ratings.movieId, reviews.movieId)
+        )
+      )
       .leftJoin(users, eq(reviews.userId, users.id))
-      .where(and(eq(reviews.movieId, movieId), isNull(reviews.deletedAt)))
-      .orderBy(desc(reviews.updatedAt));
+      .where(
+        and(
+          eq(reviews.movieId, movieId),
+          isNull(reviews.deletedAt),
+          isNotNull(ratings.rating)
+        )
+      )
+      .orderBy(desc(reviews.createdAt));
 
     console.log("allReviewsWithUser:", allReviewsWithUser);
 
@@ -56,7 +41,9 @@ router.get("/:movieId", async (req, res, next) => {
       const user = resultItem.users;
       return {
         id: review.id,
+        createdAt: review.createdAt,
         updatedAt: review.updatedAt,
+        deletedAt: review.deletedAt,
         reviewText: review.review,
         reviewContainsSpoiler: review.reviewContainsSpoiler,
         userId: user.id,
