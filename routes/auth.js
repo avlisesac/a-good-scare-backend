@@ -162,12 +162,22 @@ router.post("/login", async (req, res) => {
       { expiresIn: process.env.JWT_EXPIRATION_TIME }
     );
 
-    res.cookie("auth_token", token, {
+    const cookieOptions = {
       httpOnly: true,
-      secure: onProd ? true : false,
-      sameSite: onProd ? "none" : "lax",
+      path: "/",
       maxAge: 1000 * 60 * 60 * 24 * 30,
-    });
+    };
+
+    if (onProd) {
+      cookieOptions.domain = ".agoodscare.com";
+      cookieOptions.secure = true;
+      cookieOptions.sameSite = "none";
+    } else {
+      cookieOptions.secure = false;
+      cookieOptions.sameSite = "lax";
+    }
+
+    res.cookie("auth_token", token, cookieOptions);
 
     res.status(200).send({
       message: "Login Successful",
