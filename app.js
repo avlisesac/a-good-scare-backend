@@ -3,13 +3,12 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-var bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const cors = require("cors");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var ratingRouter = require("./routes/rating");
+var reviewRouter = require("./routes/review");
 var authModule = require("./routes/auth");
 var watchlistRouter = require("./routes/watchlist");
 
@@ -38,6 +37,7 @@ app.set("trust proxy", 1);
 app.use("/api", indexRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/rating", ratingRouter);
+app.use("/api/review", reviewRouter);
 app.use("/api/auth", authModule.router);
 app.use("/api/watchlist", watchlistRouter);
 

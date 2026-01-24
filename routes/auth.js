@@ -164,7 +164,6 @@ router.post("/login", async (req, res) => {
 
     res.cookie("auth_token", token, {
       httpOnly: true,
-      // TODO: ensure this is set on live env.
       secure: onProd ? true : false,
       sameSite: onProd ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24 * 30,
