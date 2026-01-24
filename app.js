@@ -33,7 +33,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.options("*", cors());
+app.options("/*", cors());
 
 app.set("trust proxy", 1);
 
