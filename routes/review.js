@@ -39,6 +39,7 @@ router.get("/:movieId", async (req, res, next) => {
     const constructedResponse = allReviewsWithUser?.map((resultItem) => {
       const review = resultItem.reviews;
       const user = resultItem.users;
+      const rating = resultItem.ratings;
       return {
         id: review.id,
         createdAt: review.createdAt,
@@ -48,6 +49,7 @@ router.get("/:movieId", async (req, res, next) => {
         reviewContainsSpoiler: review.reviewContainsSpoiler,
         userId: user.id,
         username: user.username,
+        rating: rating.rating,
       };
     });
 
