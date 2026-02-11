@@ -40,13 +40,17 @@ router.post("/register", async (req, res, next) => {
   let usernameExists = false;
   let emailExists = false;
   try {
-    const { email, username, password } = req.body;
+    const { email: rawEmail, username: rawUsername, password } = req.body;
+
+    const trimmedEmail = rawEmail.trim();
+    const trimmedUsername = rawUsername.trim();
+
     let missingRequiredParametersMessage = "Missing required parameters: ";
     const missingRequiredParameters = [];
-    if (!email) {
+    if (!trimmedEmail) {
       missingRequiredParameters.push("email");
     }
-    if (!username) {
+    if (!trimmedUsername) {
       missingRequiredParameters.push("username");
     }
     if (!password) {
@@ -58,11 +62,24 @@ router.post("/register", async (req, res, next) => {
       throw missingRequiredParametersMessage;
     }
 
+    if (trimmedUsername.length < 3 || trimmedUsername.length > 30) {
+      throw "Username must be between 3 and 30 characters.";
+    }
+
+    const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9._-]*$/;
+
+    if (!USERNAME_REGEX.test(trimmedUsername)) {
+      throw "Username may only consist of letters, numbers, '.', '-', and '_' and must start with a letter.";
+    }
+    if (password.length < 8) {
+      throw "Password must be at least 8 characters long.";
+    }
+
     // Check for existing user w/ email.
     const existingUsersWithEmail = await db
       .select()
       .from(users)
-      .where(sql`LOWER(${users.email}) = LOWER(${email})`);
+      .where(sql`LOWER(${users.email}) = LOWER(${trimmedEmail})`);
     console.log("existingUsersWithEmail:", existingUsersWithEmail);
 
     if (existingUsersWithEmail && existingUsersWithEmail.length > 0) {
@@ -74,7 +91,7 @@ router.post("/register", async (req, res, next) => {
     const existingUsersWithUsername = await db
       .select()
       .from(users)
-      .where(sql`LOWER(${users.username}) = LOWER(${username})`);
+      .where(sql`LOWER(${users.username}) = LOWER(${trimmedUsername})`);
     console.log("existingUsersWithUsername:", existingUsersWithUsername);
     if (existingUsersWithUsername && existingUsersWithUsername.length > 0) {
       usernameExists = true;
@@ -84,8 +101,8 @@ router.post("/register", async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, 12);
     console.log("hashedPassword:", hashedPassword);
     const insertValues = {
-      email: email,
-      username: username,
+      email: trimmedEmail,
+      username: trimmedUsername,
       password: hashedPassword,
     };
     console.log("insertValues:", insertValues);
@@ -102,8 +119,8 @@ router.post("/register", async (req, res, next) => {
       reason: emailExists
         ? "emailExists"
         : usernameExists
-        ? "usernameExists"
-        : null,
+          ? "usernameExists"
+          : null,
       error,
     });
   }
@@ -111,11 +128,13 @@ router.post("/register", async (req, res, next) => {
 
 router.post("/login", async (req, res) => {
   console.log("req.body:", req.body);
+  const loginErrorMessage = "Invalid username/email or password.";
   try {
-    const { idField, password } = req.body;
+    const { idField: rawIdField, password } = req.body;
+    const trimmedIdField = rawIdField.trim();
     let missingRequiredParametersMessage = "Missing required parameters: ";
     const missingRequiredParameters = [];
-    if (!idField) {
+    if (!trimmedIdField) {
       missingRequiredParameters.push("idField");
     }
     if (!password) {
@@ -132,14 +151,15 @@ router.post("/login", async (req, res) => {
       .from(users)
       .where(
         sql`
-          LOWER(${users.email}) = LOWER(${idField})
-          OR LOWER(${users.username}) = LOWER(${idField})
-        `
+          LOWER(${users.email}) = LOWER(${trimmedIdField})
+          OR LOWER(${users.username}) = LOWER(${trimmedIdField})
+        `,
       )
       .limit(1);
 
     if (usersFound.length === 0) {
-      throw "No user found with this email address or username.";
+      console.error("username/email not found.");
+      throw loginErrorMessage;
     }
 
     const targetUser = usersFound[0];
@@ -147,7 +167,8 @@ router.post("/login", async (req, res) => {
     const passwordsMatch = await bcrypt.compare(password, targetUser.password);
 
     if (!passwordsMatch) {
-      throw "Password is incorrect.";
+      console.error("password incorrect");
+      throw loginErrorMessage;
     }
 
     const token = jwt.sign(
@@ -159,7 +180,7 @@ router.post("/login", async (req, res) => {
         },
       },
       process.env.JWT_SECRET_KEY,
-      { expiresIn: process.env.JWT_EXPIRATION_TIME }
+      { expiresIn: process.env.JWT_EXPIRATION_TIME },
     );
 
     const cookieOptions = {
