@@ -66,8 +66,10 @@ router.post("/register", async (req, res, next) => {
       throw "Username must be between 3 and 30 characters.";
     }
 
-    if (!/^[a-zA-Z0-9_]+$/.test(trimmedUsername)) {
-      throw "Username may only contain letters, numbers, and underscores.";
+    const USERNAME_REGEX = /^[a-zA-Z][a-zA-Z0-9._-]*$/;
+
+    if (!USERNAME_REGEX.test(trimmedUsername)) {
+      throw "Username may only consist of letters, numbers, '.', '-', and '_' and must start with a letter.";
     }
     if (password.length < 8) {
       throw "Password must be at least 8 characters long.";
