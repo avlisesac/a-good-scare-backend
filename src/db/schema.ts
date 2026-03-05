@@ -51,7 +51,7 @@ export const ratings = pgTable(
     index("rating_movie_idx").on(table.movieId),
     index("rating_user_idx").on(table.userId),
     uniqueIndex("rating_movie_user_idx").on(table.movieId, table.userId),
-  ]
+  ],
 );
 
 export const reviews = pgTable(
@@ -67,7 +67,7 @@ export const reviews = pgTable(
     index("review_movie_idx").on(table.movieId),
     index("review_user_idx").on(table.userId),
     uniqueIndex("review_movie_user_idx").on(table.movieId, table.userId),
-  ]
+  ],
 );
 
 export const wantToWatch = pgTable(
@@ -82,7 +82,7 @@ export const wantToWatch = pgTable(
     index("wtw_movie_idx").on(table.movieId),
     index("wtw_user_idx").on(table.userId),
     uniqueIndex("wtw_movie_user_idx").on(table.movieId, table.userId),
-  ]
+  ],
 );
 
 export const flaggedAsNotHorror = pgTable(
@@ -96,7 +96,7 @@ export const flaggedAsNotHorror = pgTable(
     index("nhflag_movie_idx").on(table.movieId),
     index("nhflag_user_idx").on(table.userId),
     uniqueIndex("nhflag_movie_user_idx").on(table.movieId, table.userId),
-  ]
+  ],
 );
 
 export const seenMovies = pgTable(
@@ -110,5 +110,24 @@ export const seenMovies = pgTable(
     index("seen_movie_idx").on(table.movieId),
     index("seen_user_idx").on(table.userId),
     uniqueIndex("seen_movie_user_idx").on(table.movieId, table.userId),
-  ]
+  ],
+);
+
+export const lists = pgTable("lists", {
+  ...defaultTableProperties,
+  createdByUserId: uuid("created_by_user_id").references(() => users.id),
+  name: text().notNull(),
+});
+
+export const listItems = pgTable(
+  "list_items",
+  {
+    ...defaultTableProperties,
+    listId: uuid("list_id").references(() => lists.id),
+    movieId: integer("movie_id").references(() => movies.id),
+    listPosition: integer("list_position").notNull(),
+  },
+  (table) => [
+    uniqueIndex("list_item_movie_list_idx").on(table.movieId, table.listId),
+  ],
 );

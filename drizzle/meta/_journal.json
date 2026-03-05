@@ -22,6 +22,27 @@
       "when": 1768846348441,
       "tag": "0002_modern_serpent_society",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1771376131819,
+      "tag": "0003_normal_swarm",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1771376365963,
+      "tag": "0004_magenta_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1771466517062,
+      "tag": "0005_sad_nemesis",
+      "breakpoints": true
     }
   ]
 }

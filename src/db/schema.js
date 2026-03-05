@@ -11,7 +11,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.seenMovies = exports.flaggedAsNotHorror = exports.wantToWatch = exports.reviews = exports.ratings = exports.ratingEnum = exports.movies = exports.users = void 0;
+exports.listItems = exports.lists = exports.seenMovies = exports.flaggedAsNotHorror = exports.wantToWatch = exports.reviews = exports.ratings = exports.ratingEnum = exports.movies = exports.users = void 0;
 var pg_core_1 = require("drizzle-orm/pg-core");
 var datetimeTableProperties = {
     createdAt: (0, pg_core_1.timestamp)().defaultNow().notNull(),
@@ -46,4 +46,8 @@ exports.seenMovies = (0, pg_core_1.pgTable)("seen_movies", __assign(__assign({},
     (0, pg_core_1.index)("seen_movie_idx").on(table.movieId),
     (0, pg_core_1.index)("seen_user_idx").on(table.userId),
     (0, pg_core_1.uniqueIndex)("seen_movie_user_idx").on(table.movieId, table.userId),
+]; });
+exports.lists = (0, pg_core_1.pgTable)("lists", __assign(__assign({}, defaultTableProperties), { createdByUserId: (0, pg_core_1.uuid)("created_by_user_id").references(function () { return exports.users.id; }), name: (0, pg_core_1.text)().notNull() }));
+exports.listItems = (0, pg_core_1.pgTable)("list_items", __assign(__assign({}, defaultTableProperties), { listId: (0, pg_core_1.uuid)("list_id").references(function () { return exports.lists.id; }), movieId: (0, pg_core_1.integer)("movie_id").references(function () { return exports.movies.id; }), listPosition: (0, pg_core_1.integer)("list_position").notNull() }), function (table) { return [
+    (0, pg_core_1.uniqueIndex)("list_item_movie_list_idx").on(table.movieId, table.listId),
 ]; });

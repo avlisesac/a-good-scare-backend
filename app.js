@@ -10,6 +10,7 @@ var usersRouter = require("./routes/users");
 var ratingRouter = require("./routes/rating");
 var reviewRouter = require("./routes/review");
 var authModule = require("./routes/auth");
+var listsRouter = require("./routes/lists");
 var watchlistRouter = require("./routes/watchlist");
 
 var app = express();
@@ -31,7 +32,7 @@ app.use(
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-  })
+  }),
 );
 
 app.set("trust proxy", 1);
@@ -42,6 +43,7 @@ app.use("/api/rating", ratingRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/auth", authModule.router);
 app.use("/api/watchlist", watchlistRouter);
+app.use("/api/lists", listsRouter);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

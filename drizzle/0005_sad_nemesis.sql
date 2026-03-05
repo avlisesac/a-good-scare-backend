@@ -1,0 +1,1 @@
+ALTER TABLE "list_items" RENAME COLUMN "listPosition" TO "list_position";
